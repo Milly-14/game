@@ -1,88 +1,85 @@
-body { 
-    background-color: rgb(203, 144, 241) ;
+body {
+  background-color: rgb(203, 144, 241);
+}
 
-  /* Estilos generales */
+/* Estilos generales */
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
-  
-  body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    flex-direction: column;
-  }
-  
-  .gameArea {
-    background-color: white;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    text-align: center;
-    width: 300px;
-  }
-  
-  button {
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    font-size: 16px;
-    cursor: pointer;
-    margin-top: 20px;
-    transition: background-color 0.3s;
-  }
-  
-  button:hover {
-    background-color: #45a049;
-  }
-  
-  input {
-    width: 80%;
-    padding: 8px;
-    margin-top: 20px;
-    font-size: 16px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-  }
-  
-  input:focus {
-    outline: none;
-    border-color: #4CAF50;
-  }
-  
-  div {
-    margin-top: 20px;
-  }
-  
-  /* Estilos para el contenedor de las palabras mezcladas */
-  .gameArea > div:first-child {
-    font-size: 1.2em;
-    font-weight: bold;
-    color: #333;
-  }
-  
-  /* Estilos para los resultados */
-  #result {
-    font-size: 1.1em;
-    margin-top: 10px;
-    font-weight: bold;
-  }
-  
-  #result.correct {
-    color: green;
-  }
-  
-  #result.incorrect {
-    color: red;
-  }
-  
-  
-  }
-  
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  flex-direction: column;
+}
+
+.gameArea {
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  width: 600px;
+  margin: auto; /* Centrar horizontalmente */
+}
+
+button {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 20px;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: #45a049;
+}
+
+input {
+  width: 80%;
+  padding: 8px;
+  margin-top: 20px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+input:focus {
+  outline: none;
+  border-color: #4CAF50;
+}
+
+div {
+  margin-top: 20px;
+}
+
+/* Estilos para el contenedor de las palabras mezcladas */
+.gameArea > div:first-child {
+  font-size: 1.2em;
+  font-weight: bold;
+  color: #333;
+}
+
+/* Estilos para los resultados */
+#result {
+  font-size: 1.1em;
+  margin-top: 10px;
+  font-weight: bold;
+}
+
+#result.correct {
+  color: green;
+}
+
+#result.incorrect {
+  color: red;
+}

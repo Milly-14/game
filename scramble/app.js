@@ -1,139 +1,184 @@
-const gameArea = document.querySelector(".gameArea"); // Creamos el contenedor del area del juego
-const btn = document.createElement("button"); // Creamos el boton de inicio del juego
-const output = document.createElement("div"); // Creamos el contenedor de las palabras
-const inWord = document.createElement("input"); // Creamos el input para ingresar la palabra
-const scoreBoard = document.createElement("div"); // Creamos el contenedor del puntaje
-scoreBoard.textContent = "Puntaje: 0"; // Texto del puntaje
-scoreBoard.style.fontSize = "2em"; // Tamaño de la fuente
-scoreBoard.style.color = "#4C048C"; // Color del texto
-scoreBoard.style.backgroundColor = "#FFD700"; // Color de fondo
-inWord.setAttribute("type", "text"); // Tipo de input
-inWord.classList.add("myInput"); // Clase de bootstrap
-output.style.textAlign = "center"; // Alineamos el texto al centro
-output.style.marginBottom = "10px"; // Margen inferior
-btn.textContent = "Iniciar Juego"; // Texto del boton
-output.textContent = "Clic en el boton"; // Texto del contenedor de las palabras
-console.log(btn);
+// Clase Game: Lógica del juego
+class Game {
+  constructor(words) {
+    this.words = words;
+    this.sel = "";
+    this.scramble = "";
+    this.correct = 0;
+    this.incorrect = 0;
+    this.wordsLeft = 0;
+    this.played = words.length;
+  }
 
-// Agregar a la pagina del HTML
-gameArea.appendChild(scoreBoard);
-gameArea.appendChild(output);
-gameArea.appendChild(btn);
-gameArea.appendChild(inWord);
-gameArea.appendChild(btn);
+  start() {
+    if (this.words.length === 0) {
+      return this.end();
+    }
 
-// Elementos ocultos
-inWord.style.display = "none";
-scoreBoard.style.display = "none";
+    this.sel = this.words.shift();
+    this.wordsLeft = this.words.length;
+    this.scramble = this.sorter(this.sel);
+  }
 
-// Valores iniciales del juego
-const myWords = ["cocodrilo", "gato", "raton"];
-const game = {
-  sel: "",
-  scramble: "",
-  correct: 0,
-  incorrect: 0,
-  wordsLeft: 0,
-  played: myWords.length,
-};
+  winChecker(input) {
+    if (input === this.sel) {
+      this.correct++;
+      return true;
+    } else {
+      this.incorrect++;
+      return false;
+    }
+  }
 
-// evento click del boton
-btn.addEventListener("click", function (e) {
-  btn.style.display = "none"; // Ocultamos el boton
-  inWord.style.display = "inline"; // Mostramos el input
-  scoreBoard.style.display = "block"; // Mostramos el puntaje
-  myWords.sort(() => {
-    return 0.5 - Math.random();
-  }); // Ordenamos las palabras de forma aleatoria
-  game.sel = myWords[0]; // Seleccionamos la primera palabra
-  game.scramble = sorter(game.sel); // Llamamos a la funcion sorter
-  output.style.fontSize = "3em"; // Tamaño de la fuente
-  inWord.setAttribute("maxlength", game.sel.length); // Maximo de caracteres del input
-  inWord.focus(); // Enfocamos el input
-  output.textContent = game.scramble; // Mostramos la palabra ordenada
-  console.log(game.sel, game.scramble);
+  sorter(word) {
+    let temp = word.split("");
+    temp.sort(() => 0.5 - Math.random());
+    temp = temp.join("");
+    if (word === temp) {
+      return this.sorter(word);
+    }
+    return temp;
+  }
 
-  if (myWords.length === 0) {
-    // Fin del juego
-    gameArea.innerHTML = `<h2>Fin del juego</h2>`;
+  addScore() {
+    return `Correctas: <b>${this.correct}</b> VS incorrectas: <b>${this.incorrect}</b> <small>Palabras restantes: ${this.wordsLeft}</small>`;
+  }
+
+  end() {
+    return {
+      correct: this.correct,
+      incorrect: this.incorrect,
+      played: this.played
+    };
+  }
+}
+
+// Clase UI: Interacción con el DOM
+class UI {
+  constructor(gameArea) {
+    this.gameArea = gameArea;
+    this.game = null;
+
+    this.btn = document.createElement("button");
+    this.output = document.createElement("div");
+    this.inWord = document.createElement("input");
+    this.scoreBoard = document.createElement("div");
+
+    this.initializeUI();
+  }
+
+  initializeUI() {
+    this.scoreBoard.textContent = "Puntaje: 0";
+    this.scoreBoard.style.fontSize = "2em";
+    this.scoreBoard.style.color = "#4C048C";
+    this.scoreBoard.style.backgroundColor = "#FFD700";
+    
+    this.inWord.setAttribute("type", "text");
+    this.inWord.classList.add("myInput");
+    
+    this.output.style.textAlign = "center";
+    this.output.style.marginBottom = "10px";
+    
+    this.btn.textContent = "Iniciar Juego";
+    this.output.textContent = "CLICK PARA INICIAR JUEGO";
+    this.output.style.fontSize = "2em";
+    
+    this.gameArea.appendChild(this.scoreBoard);
+    this.gameArea.appendChild(this.output);
+    this.gameArea.appendChild(this.btn);
+    this.gameArea.appendChild(this.inWord);
+
+    this.inWord.style.display = "none";
+    this.scoreBoard.style.display = "none";
+    
+    this.btn.addEventListener("click", () => this.startGame());
+    this.inWord.addEventListener("keypress", (e) => {
+      if (this.inWord.value.length === this.game.sel.length || e.code === "Enter") {
+        this.winChecker();
+      }
+    });
+  }
+
+  startGame() {
+    if (!this.game) return;
+
+    if (this.game.words.length === 0) {
+      this.endGame();
+      return;
+    }
+
+    this.game.start();
+
+    this.btn.style.display = "none";
+    this.inWord.style.display = "inline";
+    this.scoreBoard.style.display = "block";
+
+    this.inWord.setAttribute("maxlength", this.game.sel.length);
+    this.inWord.value = ""; 
+    this.inWord.disabled = false;
+    this.inWord.style.borderColor = "gray";
+    this.output.style.color = "black";
+    this.inWord.focus();
+    this.output.textContent = this.game.scramble;
+
+    this.updateScore();
+  }
+
+  winChecker() {
+    this.inWord.style.borderWidth = "5px";
+    if (this.game.winChecker(this.inWord.value)) {
+      this.output.textContent = "¡Adivinaste la palabra!";
+      this.output.style.color = "green";
+      this.inWord.disabled = true;
+      this.inWord.style.display = "none";
+      this.btn.style.display = "inline";
+      this.btn.textContent = "Siguiente Palabra";
+    } else {
+      this.output.textContent = "Incorrecto";
+      this.output.style.color = "red";
+      this.inWord.value = "";
+      this.inWord.disabled = true;
+      setTimeout(() => {
+        this.inWord.disabled = false;
+        this.inWord.style.borderColor = "gray";
+        this.startGame();
+      }, 700);
+    }
+
+    this.updateScore();
+
+    if (this.game.correct + this.game.incorrect === this.game.played) {
+      this.endGame();
+    }
+  }
+
+  updateScore() {
+    this.scoreBoard.innerHTML = this.game.addScore();
+  }
+
+  endGame() {
+    const result = this.game.end();
+    this.gameArea.innerHTML = `<h2>Fin del juego</h2>`;
     const resultMessage = document.createElement("div");
-    resultMessage.innerHTML = `Correctas: <b>${game.correct}</b> VS incorrectas: <b>${game.incorrect}</b> <small>de ${game.played} palabras jugadas</small>`;
-    gameArea.appendChild(resultMessage);
 
-    // Ocultamos elementos
-    inWord.disabled = true;
-    btn.style.display = "none";
-    inWord.style.display = "none";
-    scoreBoard.style.display = "none";
-  } else {
-    // Si hay palabras restantes, continuamos el juego
-    inWord.disabled = false; // Habilitamos el input
-    btn.style.display = "none"; // Ocultamos el boton
-    inWord.style.display = "inline"; // Mostramos el input
-    scoreBoard.style.display = "block"; // Mostramos el puntaje
+    if (result.correct === result.played) {
+      resultMessage.innerHTML = `<h3>¡Ganaste!</h3> Correctas: <b>${result.correct}</b> VS incorrectas: <b>${result.incorrect}</b> <small>de ${result.played} palabras jugadas</small>`;
+    } else {
+      resultMessage.innerHTML = `<h3>¡Perdiste!</h3> Correctas: <b>${result.correct}</b> VS incorrectas: <b>${result.incorrect}</b> <small>de ${result.played} palabras jugadas</small>`;
+    }
 
-    myWords.sort(() => {
-      return 0.5 - Math.random();
-    }); // Ordenamos las palabras de forma aleatoria
-    game.sel = myWords.shift(); // Seleccionamos la primera palabra
-    game.wordsLeft = myWords.length; // Cantidad de palabras restantes
-    game.scramble = sorter(game.sel); // Llamamos a la funcion sorter
-    addScore(); // Llamamos a la funcion addScore
-    output.style.fontSize = "3em"; // Tamaño de la fuente
-    inWord.setAttribute("maxlength", game.sel.length); // Maximo de caracteres del input
-    inWord.focus(); // Enfocamos el input
-    output.textContent = game.scramble; // Mostramos la palabra ordenada
-  }
-});
+    this.gameArea.appendChild(resultMessage);
 
-// Cuando presionamos "Enter" o alcanzamos el largo de la palabra
-inWord.addEventListener("keypress", (e) => {
-  console.log(e);
-  inWord.style.borderColor = "#4C048C";
-  inWord.style.borderWidth = "1px";
-  if (inWord.value.length === game.sel.length || e.code === "Enter") {
-    console.log("verificando....");
-    winChecker();
-  }
-});
-
-function addScore() {
-  let tempOutput = `Correctas: <b>${game.correct}</b> VS incorrectas: <b>${game.incorrect}</b>`;
-  tempOutput += ` <small>Palabras restantes: ${game.wordsLeft}</small>`;
-  scoreBoard.innerHTML = tempOutput;
-}
-
-function winChecker() {
-  inWord.style.borderWidth = "5px";
-  if (inWord.value === game.sel) {
-    console.log("Ganaste");
-    inWord.style.borderColor = "green";
-    game.correct++;
-    addScore();
-    inWord.disabled = true;
-    btn.style.display = "inline";
-    btn.textContent = "Siguiente Palabra";
-    inWord.value = "";
-  } else {
-    inWord.style.borderColor = "red";
-    console.log("Perdiste");
-    inWord.value = "";
-    inWord.focus();
-    game.incorrect++;
-    addScore();
+    this.inWord.disabled = true;
+    this.btn.style.display = "none";
+    this.inWord.style.display = "none";
+    this.scoreBoard.style.display = "none";
   }
 }
 
-function sorter(word) {
-  let temp = word.split(""); // Separamos la palabra en letras
-  temp.sort(() => {
-    return 0.5 - Math.random();
-  }); // Ordenamos las letras de forma aleatoria
-  temp = temp.join(""); // Unimos las letras
-  console.log(temp); // Mostramos la palabra en consola
-  if (word === temp) {
-    console.log(word, temp);
-    return sorter(word); // Si la palabra es igual a la palabra ordenada, llamamos a la funcion sorter
-  }
-  return temp; // Retornamos la palabra ordenada
-}
+// Inicialización del juego
+const gameArea = document.querySelector(".gameArea");
+const myWords = ["cocodrilo", "gato", "raton"];
+const game = new Game(myWords);  
+const ui = new UI(gameArea);     
+ui.game = game;                  
